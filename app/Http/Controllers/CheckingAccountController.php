@@ -56,25 +56,22 @@ class CheckingAccountController extends Controller
      */
     public function update(Request $request, $id)
     {
-        try{
-        $account = $this->getCheckingAccount($id);
+        try {
+            $account = $this->getCheckingAccount($id);
 
-        if (Utils::isUserNotAuthorized($account->user_id)) {
-            return Utils::responseNotAuthorized();
-        }
-
-        if ($this->checkPin($request->pin, $account->pin)) {
-            if ($account->amount + $request->amount >= $account->limit) {
-                $account->amount += $request->amount;
-                $account->save();
-                return response()->json($account);
+            if ($this->checkPin($request->pin, $account->pin)) {
+                if ($account->amount + $request->amount >= $account->limit) {
+                    $account->amount += $request->amount;
+                    $account->save();
+                    return response()->json($account);
+                } else {
+                    return Utils::responseLimitExceed();
+                }
             } else {
-                return Utils::responseLimitExceed();
+                return Utils::responseIncorrectPin();
             }
-        } else {
-            return Utils::responseIncorrectPin();
-        } }catch (\Exception $e){
-            return \response("something goes wrong, $e");
+        } catch (\Exception $e) {
+            return response("something goes wrong, $e");
         }
     }
 
@@ -87,9 +84,6 @@ class CheckingAccountController extends Controller
     public function transfer(Request $request, $id_sender, $id_recipient)
     {
         $checkAccountFrom = Checkingaccount::find($id_sender);
-        if (Utils::isUserNotAuthorized($checkAccountFrom->user_id)) {
-            return Utils::responseNotAuthorized();
-        }
 
         $checkAccountTo = Checkingaccount::find($id_recipient);
 

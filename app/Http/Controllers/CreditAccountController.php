@@ -22,7 +22,7 @@ class CreditAccountController extends Controller
         try {
             $newCreditaccount = new Creditaccount();
             $newCreditaccount->limit = Utils::setLimit($request->limit);
-
+            $newCreditaccount->name = $checkingaccount->name;
             if ($checkingaccount == null) {
                 return response("no checking account exist")->setStatusCode(Response::HTTP_BAD_REQUEST);
             }
@@ -54,10 +54,6 @@ class CreditAccountController extends Controller
         $creditAccount = Creditaccount::find($id);
 
         if ($creditAccount != null) {
-
-            if (Utils::isUserNotAuthorized($creditAccount->checkingaccount->user_id)) {
-                return Utils::responseNotAuthorized();
-            }
 
             $creditAccount->amount -= $request->amount;
             $checkingAccount = $creditAccount->checkingaccount;

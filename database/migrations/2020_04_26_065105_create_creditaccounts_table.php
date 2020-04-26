@@ -15,6 +15,7 @@ class CreateCreditAccountsTable extends Migration
     {
         Schema::create('creditaccounts', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('name');
             $table->double('limit')->default(200);
             $table->double('amount')->default(0.0);
             $table->unsignedInteger('checkingaccount_id');

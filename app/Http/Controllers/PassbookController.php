@@ -28,16 +28,17 @@ class PassbookController extends Controller
     {
         try {
             $passbook = new Passbook();
-            $passbook->user_id = Auth::id;
+            $passbook->user_id = Auth::id();
             $passbook->name = Auth::user()->name . " " . Auth::user()->surename;
             $passbook->amount = $request->amount;
             $passbook->interest = $request->interest;
+            $passbook->pin = $request->pin;
 
             $passbook->save();
 
-            return response()->json("$passbook")->setStatusCode(Response::HTTP_OK);
+            return response()->json($passbook)->setStatusCode(Response::HTTP_OK);
         } catch (\Exception $e) {
-            return response()->json("create passbook failed, $e");
+            return response()->json("create passbook failed, $e")->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
     }
 
@@ -48,7 +49,7 @@ class PassbookController extends Controller
     public function show($id)
     {
         $accounts = Passbook::find($id);
-        if (!$this->isUserAuthorized($checkAccountFrom->user_id)) {
+        if (Utils::isUserNotAuthorized($accounts->user_id)) {
             return response()->json("You are not authorized")->setStatusCode(Response::HTTP_UNAUTHORIZED);
         }
 
@@ -63,18 +64,21 @@ class PassbookController extends Controller
     public function update(Request $request, $id)
     {
         try {
-        $passbook = Passbook::find($id);
-        if(Utils::isUserNotAuthorized($passbook->user_id)){
-            return Utils::responseNotAuthorized();
-        }
+            $passbook = Passbook::find($id);
 
-        if($passbook->amount + $request->amount >= 0){
-            $passbook->amount += $request->amount;
-            $passbook->save();
-            return \response()->json($passbook);
-        } else {
-            return \response("Not enough money ")->setStatusCode(Response::HTTP_NOT_ACCEPTABLE);
-        }}catch(Exception $e){
+            if ($request->pin == $passbook->pin) {
+
+                if ($passbook->amount + $request->amount >= 0) {
+                    $passbook->amount += $request->amount;
+                    $passbook->save();
+                    return \response()->json($passbook);
+                } else {
+                    return \response("Not enough money. amount cant be negative")->setStatusCode(Response::HTTP_NOT_ACCEPTABLE);
+                }
+            } else {
+                return Utils::responseIncorrectPin();
+            }
+        } catch (Exception $e) {
             return \response("something goes wrong, $e");
         }
     }

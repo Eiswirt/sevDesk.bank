@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Checkingaccount;
+use App\Creditaccount;
+use App\Passbook;
 use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
@@ -24,6 +26,10 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home', ['checks', Checkingaccount::whereUserId(Auth::id())->get()]);
+        return view('home')->with('check', Checkingaccount::whereUserId(Auth::id())->get())
+            ->with('credits', Checkingaccount::whereUserId(Auth::id())->get()
+                ->flatMap(function ($it) {
+                    return $it->creditaccounts;
+                }))->with('passb', Passbook::whereUserId(Auth::id())->get());
     }
 }
