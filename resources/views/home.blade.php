@@ -33,7 +33,7 @@
                         <table class="table table-sm">
                             <thead>
                             <tr>
-                                <th>IDr</th>
+                                <th>ID</th>
                                 <th>Amount</th>
                                 <th>Limit</th>
                             </tr>
@@ -49,7 +49,7 @@
                                 </tr>
                             </tbody>
                         </table>
-                    </div>
+                    </div>F
 
                     <div class="card-header">Passbook</div>
                     <div class="card-body">
